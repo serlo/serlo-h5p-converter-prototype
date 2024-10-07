@@ -17,9 +17,9 @@ const ContentDump = (props: any) => {
       <pre>{JSON.stringify(JSON.parse(content), null, 2)}</pre>
       <button
         type="button"
-        onClick={() => {
+        onClick={async () => {
           console.log(contentService.editorContent);
-          editor.current?.save();
+          await editor.current?.save();
           setContent(contentService.editorContent);
         }}
       >
