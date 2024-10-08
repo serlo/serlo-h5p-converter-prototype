@@ -5,6 +5,7 @@
   "dependencies": {
     "@lumieducation/h5p-react": "^9.3.2",
     "@lumieducation/h5p-server": "^9.3.2",
+    "@serlo/editor": "^0.14.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.0.0",
     "@testing-library/user-event": "^13.2.1",
