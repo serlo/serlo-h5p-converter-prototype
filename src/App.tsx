@@ -9,7 +9,10 @@ import "./App.css";
 
 import { ContentService } from "./services/ContentService";
 
-const initialState = {
+import { SerloPlugin, h5p2serlo } from "./SerloState";
+
+
+const initialState: SerloPlugin = {
   plugin: "rows",
   state: [
     {
@@ -25,81 +28,20 @@ const initialState = {
   ],
 };
 
-function h5p2serlo(content: any) {
-    return {
-        plugin: "exercise",
-        // The exercise plugin combines the task description and the responses
-        state: {
-            // The task
-            content: {
-                plugin: "rows",
-                state: [
-                    {
-                        plugin: "text",
-                        state: [
-                            {
-                                type: "p",
-                                level: 1,
-                                children: [{ text: content["params"]["params"]["question"]}],
-                            },
-                        ],
-                    }
-                ]
-            },
-            // The responses, either of type scMcExercise or inputExercise
-            interactive: {
-                plugin: "scMcExercise",
-
-                // // The scmc exercise contains only the response part of the exercise (the task is a separate content)
-                state: {
-                    // single or multiple choice
-                    isSingleChoice: false,
-                    // multiple answers can be entered
-                    answers: content["params"]["params"]["answers"].map((answer: any) => {
-                        return {
-                            // each answer contains a text content
-                            content: {
-                                plugin: "text",
-                                state: [
-                                    {
-                                        type: "p",
-                                        children: [{ text: answer["text"] }],
-                                    },
-
-                                ],
-                            },
-                            // flag whether answer is correct or false
-                            isCorrect: answer["correct"],
-                            // text feedback for the user
-                            feedback: {
-                                plugin: "text",
-                                state: [
-                                    {
-                                        type: "p",
-                                        children: [{ text: answer["tipsAndFeedback"]["chosenFeedback"] }],
-                                    },
-                                ],
-                            }
-                        };
-                    }),
-                },
-            }
-        }
-    };
+interface ContentDumpProps {
+    editor: React.RefObject<H5PEditorUI>;
+    contentService: ContentService;
+    updateRenderer: React.Dispatch<React.SetStateAction<SerloPlugin>>;
 }
 
-const ContentDump = (props: any) => {
-  const editor = props.editor;
-  const contentService = props.contentService;
-
+const ContentDump = (props: ContentDumpProps) => {
   return (
     <div>
       <button
         type="button"
         onClick={() => {
-          console.log(contentService.editorContent);
-          editor.current?.save().then(() => {
-              props.updateRenderer(h5p2serlo(JSON.parse(contentService.editorContent)));
+          props.editor.current?.save().then(() => {
+              props.updateRenderer(h5p2serlo(JSON.parse(props.contentService.editorContent)));
           });
         }}
       >
@@ -123,7 +65,6 @@ function App() {
         onSaved={(contentId: string, metadata: any) => {
           console.log(contentId);
         }}
-        //onSaveError = { (message: string) => {console.log(message);} }
       />
       <ContentDump editor={h5pEditor} contentService={contentService} updateRenderer={setState} />
       <SerloRenderer
